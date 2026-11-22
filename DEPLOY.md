@@ -1,9 +1,9 @@
-# Free deployment checklist
+﻿# Free deployment checklist
 
 Repo: https://github.com/Pushpendra-1697/expense-tracker-app
 
-**Live app:** https://frontend-eight-tawny-20.vercel.app  
-**API:** https://backend-gray-kappa-99.vercel.app/api
+**Live app:** https://za-charity-expense-tracker.vercel.app  
+**API:** https://za-charity-expense-api.vercel.app/api
 
 > This project is deployed on **Vercel (frontend + backend)** + **MongoDB Atlas** (free). Render is optional if you prefer a long-running Node host.
 
@@ -31,7 +31,7 @@ Set production env vars in the Vercel project (`backend`):
 | `MONGODB_URI` | *(Atlas URI from step 1; URL-encode special chars in password)* |
 | `JWT_SECRET` | *(long random string)* |
 | `JWT_EXPIRE` | `7d` |
-| `CLIENT_URL` | `https://frontend-eight-tawny-20.vercel.app` (comma-separate extra origins if needed) |
+| `CLIENT_URL` | `https://za-charity-expense-tracker.vercel.app` (comma-separate extra origins if needed) |
 
 Also turn **off** Deployment Protection / SSO Protection for the backend project so the public API is reachable:
 
@@ -44,7 +44,7 @@ npx vercel project protection disable backend --sso --yes
 ```bash
 cd frontend
 # bake API URL into the build
-echo VITE_API_URL=https://backend-gray-kappa-99.vercel.app/api > .env.production
+echo VITE_API_URL=https://za-charity-expense-api.vercel.app/api > .env.production
 npx vercel --prod
 ```
 
@@ -52,7 +52,7 @@ npx vercel --prod
 
 `CLIENT_URL` on the Vercel backend is set to:
 
-`https://frontend-eight-tawny-20.vercel.app,https://frontend-pushpendra1697s-projects.vercel.app`
+`https://za-charity-expense-tracker.vercel.app,`
 
 Backend was redeployed after the update.
 
@@ -66,7 +66,7 @@ Verified against the live API:
 4. Dashboard shows the new transaction
 5. CORS preflight allows the frontend origin
 
-Manual UI check: open https://frontend-eight-tawny-20.vercel.app → Register → Add Transaction → confirm on Dashboard.
+Manual UI check: open https://za-charity-expense-tracker.vercel.app → Register → Add Transaction → confirm on Dashboard.
 
 ## Optional: Backend on Render instead
 

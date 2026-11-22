@@ -27,12 +27,17 @@ app.use(
       if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'test') {
         callback(null, true);
       } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
+        // Reject without throwing — throwing can break OPTIONS preflight on serverless
+        callback(null, false);
       }
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+app.options('*', cors());
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(express.json({ limit: '1mb' }));

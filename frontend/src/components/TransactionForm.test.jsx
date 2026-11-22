@@ -14,7 +14,7 @@ describe('TransactionForm', () => {
       <TransactionForm accounts={accounts} categories={categories} onSubmit={async () => {}} />
     );
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^type$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/type/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
     expect(screen.getByTestId('transaction-form')).toBeInTheDocument();
   });
@@ -26,7 +26,7 @@ describe('TransactionForm', () => {
     await user.clear(screen.getByLabelText(/amount/i));
     await user.type(screen.getByLabelText(/amount/i), '0');
     fireEvent.submit(screen.getByTestId('transaction-form'));
-    expect(await screen.findByRole('alert')).toHaveTextContent(/greater than 0/i);
+    expect(await screen.findByText(/greater than 0/i)).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
   });
 

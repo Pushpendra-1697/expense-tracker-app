@@ -24,19 +24,33 @@ const renderLogin = () => {
 };
 
 describe('LoginForm', () => {
-  it('renders email and password fields', () => {
+  it('renders email and password fields with show/hide toggle', () => {
     renderLogin();
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
+    expect(document.getElementById('password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /show password/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  it('allows typing credentials', async () => {
+  it('allows typing credentials and toggling password visibility', async () => {
     const user = userEvent.setup();
     renderLogin();
-    await user.type(screen.getByLabelText(/email/i), 'demo@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
-    expect(screen.getByLabelText(/email/i)).toHaveValue('demo@example.com');
-    expect(screen.getByLabelText(/password/i)).toHaveValue('password123');
+    const email = screen.getByRole('textbox', { name: /email/i });
+    const password = document.getElementById('password');
+    await user.type(email, 'demo@example.com');
+    await user.type(password, 'password123');
+    expect(email).toHaveValue('demo@example.com');
+    expect(password).toHaveValue('password123');
+    expect(password).toHaveAttribute('type', 'password');
+    await user.click(screen.getByRole('button', { name: /show password/i }));
+    expect(password).toHaveAttribute('type', 'text');
+  });
+
+  it('shows validation errors for empty submit', async () => {
+    const user = userEvent.setup();
+    renderLogin();
+    await user.click(screen.getByRole('button', { name: /sign in/i }));
+    expect(await screen.findByText(/email is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/password is required/i)).toBeInTheDocument();
   });
 });

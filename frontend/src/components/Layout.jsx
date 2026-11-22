@@ -1,20 +1,22 @@
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/authSlice';
 
 const links = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/transactions', label: 'Transactions' },
-  { to: '/analytics', label: 'Analytics' },
-  { to: '/accounts', label: 'Accounts' },
-  { to: '/budgets', label: 'Budgets' },
-  { to: '/goals', label: 'Goals' },
+  { to: '/', label: 'Dashboard', short: 'Home' },
+  { to: '/transactions', label: 'Transactions', short: 'Txns' },
+  { to: '/analytics', label: 'Analytics', short: 'Charts' },
+  { to: '/accounts', label: 'Accounts', short: 'Wallets' },
+  { to: '/budgets', label: 'Budgets', short: 'Budget' },
+  { to: '/goals', label: 'Goals', short: 'Goals' },
 ];
 
 export default function Layout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -22,42 +24,62 @@ export default function Layout() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-7xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
-      <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="font-display text-3xl tracking-tight text-ink-950 sm:text-4xl">Ledgerly</p>
-          <p className="text-sm text-ink-700/60">Track spending. Grow savings.</p>
-        </div>
+    <div className="app-shell">
+      <header className="app-header">
         <div className="flex items-center gap-3">
-          <span className="hidden text-sm text-ink-700/70 sm:inline">Hi, {user?.name?.split(' ')[0]}</span>
+          <button
+            type="button"
+            className="btn-ghost !px-3 lg:hidden"
+            aria-label="Toggle navigation"
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span className="text-lg">{menuOpen ? '✕' : '☰'}</span>
+          </button>
+          <div>
+            <p className="font-display text-2xl tracking-tight text-ink-950 sm:text-3xl">Ledgerly</p>
+            <p className="hidden text-xs text-ink-700/55 sm:block">Track spending. Grow savings.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden rounded-full bg-white/70 px-3 py-1.5 text-sm text-ink-700/80 sm:block">
+            Hi, <span className="font-semibold text-ink-900">{user?.name?.split(' ')[0]}</span>
+          </div>
           <button type="button" className="btn-ghost" onClick={handleLogout}>
             Logout
           </button>
         </div>
       </header>
 
-      <nav className="mb-6 flex gap-2 overflow-x-auto pb-1">
+      <nav className={`app-nav-desktop ${menuOpen ? 'is-open' : ''}`}>
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             end={link.to === '/'}
-            className={({ isActive }) =>
-              `whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
-                isActive
-                  ? 'bg-ink-900 text-white'
-                  : 'bg-white/60 text-ink-700 hover:bg-white'
-              }`
-            }
+            onClick={() => setMenuOpen(false)}
+            className={({ isActive }) => `nav-chip ${isActive ? 'is-active' : ''}`}
           >
             {link.label}
           </NavLink>
         ))}
       </nav>
 
-      <main>
+      <main className="app-main page-enter">
         <Outlet />
       </main>
+
+      <nav className="app-nav-mobile" aria-label="Mobile">
+        {links.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.to === '/'}
+            className={({ isActive }) => `mobile-tab ${isActive ? 'is-active' : ''}`}
+          >
+            <span>{link.short}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }

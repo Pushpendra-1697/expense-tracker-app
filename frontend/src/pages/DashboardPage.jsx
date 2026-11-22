@@ -66,8 +66,9 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl text-ink-950">Dashboard</h2>
-          <p className="text-sm text-ink-700/60">Your money at a glance</p>
+          <p className="eyebrow">Overview</p>
+          <h2 className="font-display text-3xl text-ink-950 sm:text-4xl">Dashboard</h2>
+          <p className="mt-1 text-sm text-ink-700/60">Your money at a glance</p>
         </div>
         <button type="button" className="btn-accent" onClick={() => setShowForm((v) => !v)}>
           {showForm ? 'Close' : 'Add Transaction'}

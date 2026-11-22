@@ -8,12 +8,26 @@ export default function AuthPage({ mode = 'login' }) {
   if (token) return <Navigate to="/" replace />;
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(45,212,191,0.25),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(244,63,94,0.18),transparent_35%)]" />
-      <div className="relative w-full">
-        <div className="mb-8 text-center">
-          <h1 className="font-display text-5xl text-ink-950 sm:text-6xl">Ledgerly</h1>
-          <p className="mt-2 text-ink-700/70">Expense management that stays out of your way</p>
+    <div className="auth-shell">
+      <div className="auth-visual" aria-hidden>
+        <div className="auth-orb auth-orb-a" />
+        <div className="auth-orb auth-orb-b" />
+        <div className="auth-visual-content">
+          <p className="font-display text-4xl text-white sm:text-5xl lg:text-6xl">Ledgerly</p>
+          <p className="mt-4 max-w-sm text-base text-white/80">
+            A calm, modern home for your income, expenses, budgets, and savings goals.
+          </p>
+          <ul className="mt-8 space-y-3 text-sm text-white/75">
+            <li className="auth-feature">Live dashboards & analytics</li>
+            <li className="auth-feature">Budgets with smart warnings</li>
+            <li className="auth-feature">Multi-account wallets</li>
+          </ul>
+        </div>
+      </div>
+      <div className="auth-form-wrap">
+        <div className="mb-6 text-center lg:hidden">
+          <p className="font-display text-4xl text-ink-950">Ledgerly</p>
+          <p className="mt-1 text-sm text-ink-700/65">Expense management that stays out of your way</p>
         </div>
         {mode === 'login' ? <LoginForm /> : <RegisterForm />}
       </div>

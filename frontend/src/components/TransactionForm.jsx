@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { todayISO } from '../utils/format';
+import { validateTransaction } from '../utils/validation';
+import FormField from './FormField';
 
 const empty = {
   amount: '',
@@ -21,7 +23,9 @@ export default function TransactionForm({
   loading = false,
 }) {
   const [form, setForm] = useState(empty);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     if (initial) {
@@ -50,19 +54,34 @@ export default function TransactionForm({
         const first = categories.find((c) => c.type === value);
         next.category = first?.name || (value === 'income' ? 'Salary' : 'Food');
       }
+      if (touched[name] || Object.keys(touched).length) {
+        setErrors(validateTransaction(next));
+      }
       return next;
     });
   };
 
+  const handleBlur = (e) => {
+    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
+    setErrors(validateTransaction(form));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    if (!form.amount || Number(form.amount) <= 0) {
-      setError('Amount must be greater than 0');
-      return;
-    }
-    if (!form.account) {
-      setError('Please select an account');
+    setFormError('');
+    const nextErrors = validateTransaction(form);
+    setTouched({
+      amount: true,
+      type: true,
+      category: true,
+      account: true,
+      date: true,
+      note: true,
+      frequency: true,
+    });
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) {
+      setFormError('Please fix the highlighted fields');
       return;
     }
     try {
@@ -72,55 +91,64 @@ export default function TransactionForm({
         recurrence: form.isRecurring ? { frequency: form.frequency } : undefined,
       });
       if (!initial) setForm({ ...empty, account: accounts[0]?._id || '' });
+      setTouched({});
+      setErrors({});
     } catch (err) {
-      setError(err.message || 'Failed to save transaction');
+      setFormError(err.message || 'Failed to save transaction');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3" data-testid="transaction-form">
-      {error && (
-        <div className="rounded-xl bg-coral-500/10 px-3 py-2 text-sm text-coral-500" role="alert">
-          {error}
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="transaction-form" noValidate>
+      {formError && (
+        <div className="banner-error" role="alert">
+          {formError}
         </div>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="label" htmlFor="amount">
-            Amount
-          </label>
+        <FormField label="Amount" htmlFor="amount" error={touched.amount && errors.amount} required>
           <input
             id="amount"
             name="amount"
             type="number"
             min="0.01"
             step="0.01"
-            className="input"
+            className={`input ${touched.amount && errors.amount ? 'input-invalid' : ''}`}
             value={form.amount}
             onChange={handleChange}
-            required
+            onBlur={handleBlur}
+            placeholder="0.00"
           />
-        </div>
-        <div>
-          <label className="label" htmlFor="type">
-            Type
-          </label>
-          <select id="type" name="type" className="input" value={form.type} onChange={handleChange}>
+        </FormField>
+
+        <FormField label="Type" htmlFor="type" error={touched.type && errors.type} required>
+          <select
+            id="type"
+            name="type"
+            className={`input ${touched.type && errors.type ? 'input-invalid' : ''}`}
+            value={form.type}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
           </select>
-        </div>
-        <div>
-          <label className="label" htmlFor="category">
-            Category
-          </label>
+        </FormField>
+
+        <FormField
+          label="Category"
+          htmlFor="category"
+          error={touched.category && errors.category}
+          required
+        >
           <select
             id="category"
             name="category"
-            className="input"
+            className={`input ${touched.category && errors.category ? 'input-invalid' : ''}`}
             value={form.category}
             onChange={handleChange}
+            onBlur={handleBlur}
           >
             {filteredCategories.map((c) => (
               <option key={c._id} value={c.name}>
@@ -128,18 +156,16 @@ export default function TransactionForm({
               </option>
             ))}
           </select>
-        </div>
-        <div>
-          <label className="label" htmlFor="account">
-            Account
-          </label>
+        </FormField>
+
+        <FormField label="Account" htmlFor="account" error={touched.account && errors.account} required>
           <select
             id="account"
             name="account"
-            className="input"
+            className={`input ${touched.account && errors.account ? 'input-invalid' : ''}`}
             value={form.account}
             onChange={handleChange}
-            required
+            onBlur={handleBlur}
           >
             <option value="">Select account</option>
             {accounts.map((a) => (
@@ -148,56 +174,66 @@ export default function TransactionForm({
               </option>
             ))}
           </select>
-        </div>
-        <div>
-          <label className="label" htmlFor="date">
-            Date
-          </label>
+        </FormField>
+
+        <FormField label="Date" htmlFor="date" error={touched.date && errors.date} required>
           <input
             id="date"
             name="date"
             type="date"
-            className="input"
+            className={`input ${touched.date && errors.date ? 'input-invalid' : ''}`}
             value={form.date}
             onChange={handleChange}
+            onBlur={handleBlur}
           />
-        </div>
-        <div>
-          <label className="label" htmlFor="note">
-            Note
-          </label>
-          <input id="note" name="note" className="input" value={form.note} onChange={handleChange} />
-        </div>
+        </FormField>
+
+        <FormField label="Note" htmlFor="note" error={touched.note && errors.note}>
+          <input
+            id="note"
+            name="note"
+            className={`input ${touched.note && errors.note ? 'input-invalid' : ''}`}
+            value={form.note}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="Optional note"
+            maxLength={500}
+          />
+        </FormField>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-sm text-ink-800">
         <input
           type="checkbox"
           name="isRecurring"
           checked={form.isRecurring}
           onChange={handleChange}
+          className="h-4 w-4 accent-mint-600"
         />
         Recurring transaction
       </label>
 
       {form.isRecurring && (
-        <div>
-          <label className="label" htmlFor="frequency">
-            Frequency
-          </label>
+        <FormField
+          label="Frequency"
+          htmlFor="frequency"
+          error={touched.frequency && errors.frequency}
+          required
+        >
           <select
             id="frequency"
             name="frequency"
-            className="input"
+            className={`input ${touched.frequency && errors.frequency ? 'input-invalid' : ''}`}
             value={form.frequency}
             onChange={handleChange}
+            onBlur={handleBlur}
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
-        </div>
+        </FormField>
       )}
 
       <div className="flex flex-wrap gap-2 pt-1">

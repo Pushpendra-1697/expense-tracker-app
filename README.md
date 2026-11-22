@@ -2,8 +2,8 @@
 
 Full-stack expense management app built with MongoDB, Express, React, and Node.js. Includes JWT auth, budgets, accounts, analytics, recurring transactions, savings goals, and CSV export.
 
-**Live app:** _(add after deployment)_  
-**API:** _(add after deployment)_
+**Live app:** https://frontend-eight-tawny-20.vercel.app  
+**API:** https://backend-gray-kappa-99.vercel.app/api
 
 ## Features
 
